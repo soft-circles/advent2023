@@ -89,30 +89,12 @@ fn get_words_with_indices(line: &str) -> Vec<(usize, &str)> {
     words.concat()
 }
 
-fn get_word_minmax(
-    words_with_indices: Vec<(usize, &str)>,
-) -> (Option<(usize, &str)>, Option<(usize, &str)>) {
-    let min = words_with_indices.iter().min();
-    let max = words_with_indices.iter().max();
-    match (min, max) {
-        (None, None) => (None, None),
-        (None, Some(v)) => (None, Some(*v)),
-        (Some(v), None) => (Some(*v), None),
-        (Some(v), Some(z)) => (Some(*v), Some(*z)),
-    }
-}
-
-fn get_num_minmax(
-    nums_with_indices: Vec<(usize, u32)>,
-) -> (Option<(usize, u32)>, Option<(usize, u32)>) {
-    let min = nums_with_indices.iter().min();
-    let max = nums_with_indices.iter().max();
-    match (min, max) {
-        (None, None) => (None, None),
-        (None, Some(v)) => (None, Some(*v)),
-        (Some(v), None) => (Some(*v), None),
-        (Some(v), Some(z)) => (Some(*v), Some(*z)),
-    }
+fn get_minmax<T: Sized + Ord + Copy>(
+    items: Vec<(usize, T)>,
+) -> (Option<(usize, T)>, Option<(usize, T)>) {
+    let min = items.iter().min();
+    let max = items.iter().max();
+    (min.copied(), max.copied())
 }
 
 fn get_min(word_minmax: &Option<(usize, &str)>, num_minmax: &Option<(usize, u32)>) -> u32 {
@@ -146,8 +128,8 @@ fn get_calibration_value_for_line_part_2(line: &str) -> u32 {
         .filter_map(|(idx, char)| char.to_digit(10).and_then(|x| Some((idx, x))))
         .collect::<Vec<_>>();
     let words_with_indices = get_words_with_indices(line);
-    let word_minmax = get_word_minmax(words_with_indices);
-    let num_minmax = get_num_minmax(numbers_with_indices);
+    let word_minmax = get_minmax(words_with_indices);
+    let num_minmax = get_minmax(numbers_with_indices);
     let min = get_min(&word_minmax.0, &num_minmax.0);
     let max = get_max(&word_minmax.1, &num_minmax.1);
     (min * 10) + max
@@ -175,7 +157,7 @@ treb7uchet";
     #[test]
     fn get_word_minmax_test() {
         assert_eq!(
-            get_word_minmax(vec![(0, "two"), (4, "nine")],),
+            get_minmax(vec![(0, "two"), (4, "nine")],),
             (Some((0, "two")), Some((4, "nine")))
         );
     }
