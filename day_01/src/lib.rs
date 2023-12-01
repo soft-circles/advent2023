@@ -12,15 +12,13 @@ fn into_lines(input: String) -> Vec<String> {
 }
 
 fn get_calibration_value_for_line(line: &str) -> u32 {
-    let mut solution = 0;
     let numbers = line
         .chars()
         .filter_map(|x| x.to_digit(10))
         .collect::<Vec<_>>();
     let first = numbers.get(0).unwrap() * 10;
     let second = numbers.get(numbers.len() - 1).unwrap();
-    solution += first + second;
-    solution
+    first + second
 }
 
 /* PART 2 SOLUTION */
