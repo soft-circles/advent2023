@@ -187,6 +187,45 @@ pub fn solution1(input: &str) -> u32 {
     id_total
 }
 
+// Solution 2
+
+fn get_max_from_sets(sets: &Vec<ValidSet>) -> ValidSet {
+    // 0: BLUE, 1: RED, 2: GREEN
+    let mut maxes = [0, 0, 0];
+    for set in sets.iter() {
+        match maxes[0].lt(&set.blue.amount) {
+            true => maxes[0] = set.blue.amount,
+            false => (),
+        }
+        match maxes[1].lt(&set.red.amount) {
+            true => maxes[1] = set.red.amount,
+            false => (),
+        }
+        match maxes[2].lt(&set.green.amount) {
+            true => maxes[2] = set.green.amount,
+            false => (),
+        }
+    }
+    ValidSet::new(maxes[0], maxes[1], maxes[2])
+}
+
+fn get_power_of_set(set: &ValidSet) -> u32 {
+    set.blue.amount * set.red.amount * set.green.amount
+}
+
+pub fn solution2(input: &str) -> u32 {
+    let parsed_file = PuzzleParser::parse(Rule::file, input);
+    let games = parse_games(parsed_file.unwrap().next().unwrap());
+
+    let mut cube_powers = 0;
+    for game in games.iter() {
+        let valid_sets = get_valid_sets(game);
+        let maxes_in_set = get_max_from_sets(&valid_sets);
+        cube_powers += get_power_of_set(&maxes_in_set);
+    }
+    cube_powers
+}
+
 #[cfg(test)]
 mod test {
 
@@ -347,5 +386,52 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
     #[test]
     fn solution1_works() {
         assert_eq!(solution1(sample_input()), 8);
+    }
+
+    #[test]
+    fn get_max_from_sets_works() {
+        let game = Game {
+            id: 1,
+            sets: vec![
+                vec![
+                    Cube {
+                        color: Color::RED,
+                        amount: 3,
+                    },
+                    Cube {
+                        color: Color::GREEN,
+                        amount: 5,
+                    },
+                    Cube {
+                        color: Color::BLUE,
+                        amount: 2,
+                    },
+                ],
+                vec![
+                    Cube {
+                        color: Color::RED,
+                        amount: 1,
+                    },
+                    Cube {
+                        color: Color::GREEN,
+                        amount: 2,
+                    },
+                ],
+            ],
+        };
+        assert_eq!(
+            get_max_from_sets(&get_valid_sets(&game)),
+            ValidSet::new(2, 3, 5)
+        );
+    }
+
+    #[test]
+    fn get_power_works() {
+        assert_eq!(get_power_of_set(&ValidSet::new(6, 4, 2)), 48);
+    }
+
+    #[test]
+    fn solution2_works() {
+        assert_eq!(solution2(sample_input()), 2286);
     }
 }
