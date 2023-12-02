@@ -1,0 +1,7 @@
+color = { ("red" | "blue" | "green") }
+amount = { ASCII_DIGIT+ }
+cube = { amount ~ " " ~ color }
+set = { (": " | "; ")* ~ (cube ~ (", ")*)+ }
+game = { "Game" ~ " " ~ id ~ set* }
+id = { ASCII_DIGIT+ }
+file = { SOI ~ (game ~ NEWLINE)* ~ EOI }
